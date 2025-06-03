@@ -28,21 +28,33 @@ import pandas as pd
 ds = load_dataset("ruanchaves/b2w-reviews01")
 
 #Visualiza estrutura do Dataset
+ds
 
 # Converter para DataFrame
 df = pd.DataFrame(ds['train'])
 #Dimensões do dataset (quantidade de registros e variáveis)
+df.shape
 
 #Visualiza as primeiras linhas do dataframe
+df.head()
 
 #Visualiza as ultimas linhas do dataframe
+df.tail()
 
 #Visualiza as primeiras e últimas linhas do dataframe
+display(df)
 
 #Visualiza as colunas do dataframe
+df.columns
 
 """# 2. Distribuição das avaliações"""
 
+tab_aval = df['overall_rating'].value_counts().sort_index()
+tab_aval
+
+
+
+plt.figure(figsize=(4,2)) #tamanho do gráfico ajustado
 df['overall_rating'].value_counts().sort_index().plot(kind='bar')
 plt.title('Distribuição das Notas')
 plt.xlabel('Nota')
@@ -51,6 +63,7 @@ plt.ylabel('Quantidade de Avaliações')
 """# 3. Distribuição proporcional das avaliações"""
 
 #Gera gráfico de pizza. Autopct: é uma string ou função usada para rotular as partes do gráfico com seus valores numéricos
+plt.figure(figsize=(6,4))
 df['overall_rating'].value_counts().sort_index().plot(kind='pie', autopct='%1.1f%%')
 
 """# 4. Proporção de Recomendação"""
@@ -65,8 +78,14 @@ plt.title('Recomendaria a um Amigo?')
 
 """# 5. Distribuição por Estado"""
 
+count_estado=df['reviewer_state'].value_counts().head(10)
+count_estado
+
 plt.figure(figsize=(6, 4))
 df['reviewer_state'].value_counts().head(10).plot(kind='bar', color='blue')
+plt.title('Top 10 Estados com Mais Avaliações')
+plt.xlabel('Estado')
+plt.ylabel('Total de avaliações')
 
 """# 6.Nuvem de Palavras"""
 
@@ -75,6 +94,7 @@ from wordcloud import WordCloud
 
 #Extrai somente o texto de avaliações
 texts = df['review_text']
+texts
 
 #Concatena todos os campos textos em uma string, considerando campos Nulos
 full_text = " ".join([str(text) if text is not None else "" for text in texts])
@@ -96,7 +116,7 @@ import nltk
 from nltk.corpus import stopwords
 
 # Baixe
-#nltk.download('stopwords')
+nltk.download('stopwords')
 
 # Pegue a lista de stopwords em português
 stopwords_pt = set(stopwords.words('portuguese'))
@@ -119,22 +139,33 @@ df_rate = df[df['overall_rating']==1]
 
 #Extrai somente o campo do título das avaliações
 texts_rate = df_rate['review_title']
+texts_rate
 
 #Agrupa textos considerando campos nulos
 full_text_rate = " ".join([str(text) if text is not None else "" for text in texts_rate])
 
 # Gera wordcloud
+wordcloud2 = WordCloud(width=800, height=400, background_color='white', stopwords=stopwords_pt).generate(full_text_rate)
 
 # Mostra a nuvem de palavras
+plt.figure(figsize=(10, 5))
+plt.imshow(wordcloud2, interpolation='bilinear')
+plt.axis('off')
+plt.show()
 
 """# 9. Calcular a idade"""
+
+df.head()
 
 #Converter as informações do submission_date que está string para datetime e gravar no campo "submission_data_1"
 df['submission_date_1'] = pd.to_datetime(df['submission_date'],errors='coerce')
 # Extrair o ano da submissão do novo campo e salvar no campo submission_year
 df['submission_year'] = df['submission_date_1'].dt.year
 
+df.head()
+
 #Cria campo idade e calcula a idade de cada revisor
 df['idade'] = df['submission_year'] - df['reviewer_birth_year']
+df.head()
 
 #Visualiza dataframe
